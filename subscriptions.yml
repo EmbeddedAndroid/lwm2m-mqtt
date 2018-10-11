@@ -1,0 +1,14 @@
+leshan_api:
+  url: http://192.168.86.71:8081
+
+mqtt:
+  host: 127.0.0.1
+  port: 1883
+
+endpoints:
+  osf:sn:b761c8a9:
+    alias: light-0
+    observations:
+      '/3303/0/5700':
+        type: float
+        alias: light-temp

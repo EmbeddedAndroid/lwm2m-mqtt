@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mosquitto:
+    image: opensourcefoundries/simple-mosquitto-broker:latest
+    read_only: true
+    restart: always
+    network_mode: "host"
+
+  lwm2m-mqtt:
+    image: lwm2m-mqtt:latest
+    network_mode: "host"
+    restart: always
+    command: /src/subscriptions.yml
+    read_only: true
+    depends_on:
+      - mosquitto
