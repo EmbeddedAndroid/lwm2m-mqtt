@@ -69,7 +69,7 @@ def on_notify(api_config, endpoints, client, event):
             log.warn('Invalid observation type: %s', type)
         log.info('%s - observed %s = %s', name, key, val)
         mqtt = {}
-        mqtt.update({'die_temp': val})
+        mqtt.update({name: val})
         client.publish(epname, payload=json.dumps(mqtt), qos=0, retain=True)
         log.info('mqtt: %s - %s', epname, mqtt)
 
