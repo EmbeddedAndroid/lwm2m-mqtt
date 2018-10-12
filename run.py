@@ -72,7 +72,7 @@ def on_notify(api_config, endpoints, client, event):
         mqtt.update({key: val})
         topic = epname + '-' + name
         client.publish(topic, payload=json.dumps(mqtt), qos=0, retain=True)
-        log.info('mqtt: %s - %s', epname, mqtt)
+        log.info('mqtt: %s - %s', topic, mqtt)
 
 
 def on_updated(api_config, endpoints, client, event):
