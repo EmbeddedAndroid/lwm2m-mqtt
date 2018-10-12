@@ -23,8 +23,10 @@ def sseclient_from_config(subscriptions):
     if not url.endswith('/'):
         url += '/'
     url += 'event'
-    print(url)
-    return SSEClient(url, allow_redirects=api.get('allow_redirects'))
+    try:
+        return SSEClient(url, allow_redirects=api.get('allow_redirects'))
+    except:
+        exit(1)
 
 
 def create_observations(api_config, endpoint, config):
@@ -38,6 +40,7 @@ def create_observations(api_config, endpoint, config):
         if r.status_code != 200:
             log.error('Unable to register observation: %s - %d\n%s',
                       url, r.status_code, r.text)
+            exit(1)
         else:
             name = config.get('alias', endpoint)
             log.info('%s - created observation for: %s', name, ipso)
