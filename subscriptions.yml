@@ -15,3 +15,12 @@ endpoints:
       '/3311/0/5850':
         type: str
         alias: light-power-state
+      '/3/0/19':
+        type: str
+        alias: light-sw-version
+      '/3/0/2':
+        type: str
+        alias: light-serial-num
+      '/3/0/17'
+        type: str
+        alias: light-device-type
