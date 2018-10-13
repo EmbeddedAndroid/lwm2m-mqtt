@@ -21,6 +21,9 @@ endpoints:
       '/3/0/2':
         type: str
         alias: light-serial-num
-      '/3/0/17':
+      '/3/0/1':
         type: str
-        alias: light-device-type
+        alias: light-model-num
+      '/3311/0/5706':
+        type: str
+        alias: light-colour
