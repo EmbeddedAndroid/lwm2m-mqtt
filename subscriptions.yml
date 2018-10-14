@@ -35,4 +35,4 @@ endpoints:
         alias: light-dimmer
       '/3/0/21':
         type: float
-        alias: light-mem-free
+        alias: light-mem-total
