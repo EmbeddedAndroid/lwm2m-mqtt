@@ -33,4 +33,6 @@ endpoints:
       '/3311/0/5851':
         type: float
         alias: light-dimmer
-
+      '/3/0/21':
+        type: float
+        alias: light-mem-free
