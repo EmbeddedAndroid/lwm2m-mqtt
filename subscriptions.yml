@@ -33,6 +33,6 @@ endpoints:
       '/3311/0/5851':
         type: float
         alias: light-dimmer
-      '/3/0/21':
-        type: float
-        alias: light-mem-total
+      '/3/0/18':
+        type: str
+        alias: light-hw-version
