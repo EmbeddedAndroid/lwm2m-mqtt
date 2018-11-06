@@ -24,7 +24,14 @@ def get_current_endpoints(api_config, endpoints):
         url += '/'
     url += 'api/clients'
     print(url)
-    r = requests.get(url, timeout=0.1)
+    try:
+        r = requests.get(url, timeout=0.1)
+    except requests.exceptions.ConnectTimeout as e:
+        log.error('Timeout while getting client list')
+        exit(1)
+    except requests.exceptions.ConnectionError as e:
+        log.error('Connection error')
+        exit(1)
     if r.status_code != 200:
         log.error('Unable to get client list: %s - %d\n%s',
                   url, r.status_code, r.text)
@@ -61,7 +68,11 @@ def create_observations(api_config, endpoint, config):
                 url += '/'
             url += 'api/clients/%s%s/observe?format=TLV' % (endpoint, ipso)
             print(url)
-            r = requests.post(url, headers=api_config.get('headers'))
+            try:
+                r = requests.post(url, headers=api_config.get('headers'), timeout=10)
+            except requests.exceptions.ReadTimeout as e:
+                log.error('Timeout while registering observation')
+                exit(1)
             if r.status_code != 200:
                 log.error('Unable to register observation: %s - %d\n%s',
                           url, r.status_code, r.text)
@@ -129,10 +140,12 @@ def main(subscriptions):
     api_config = subscriptions['leshan_api']
     endpoints = subscriptions['endpoints']
     mqtt = subscriptions['mqtt']
+    log.info('Initialization Started')
     try:
         client = paho.Client()
         client.connect(mqtt['host'], mqtt['port'], 60)
         client.loop_start()
+        log.info('MQTT Client Started')
     except:
         print("MQTT broker failed to connect, exiting...")
         exit(1)
@@ -140,11 +153,13 @@ def main(subscriptions):
     endpoints = get_current_endpoints(api_config, endpoints)
     for endpoint, config in endpoints.items():
         create_observations(api_config, endpoint, config)
+    log.info('Initial Observations Registered')
 
     for event in sseclient_from_config(subscriptions):
         cb = handlers.get(event.event)
         if cb:
             cb(api_config, endpoints, client, json.loads(event.data))
+    log.info('Server Side Callbacks Registered')
 
 
 if __name__ == '__main__':
