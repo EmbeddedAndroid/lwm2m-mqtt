@@ -17,6 +17,30 @@ logging.basicConfig(
 log = logging.getLogger('leshan-graphite')
 
 
+def get_current_endpoints(api_config, endpoints):
+    eplist = []
+    url = api_config['url']
+    if not url.endswith('/'):
+        url += '/'
+    url += 'api/clients'
+    print(url)
+    r = requests.get(url)
+    if r.status_code != 200:
+        log.error('Unable to get client list: %s - %d\n%s',
+                  url, r.status_code, r.text)
+        exit(1)
+    else:
+        for client in json.loads(r.content.decode('utf-8')):
+            if 'endpoint' in client:
+                eplist.append(client['endpoint'])
+
+    for endpoint in eplist:
+        if endpoint not in endpoints:
+            config = endpoints['default']
+            endpoints.update({endpoint: config})
+
+    return endpoints
+
 def sseclient_from_config(subscriptions):
     api = subscriptions['leshan_api']
     url = api['url']
@@ -30,20 +54,20 @@ def sseclient_from_config(subscriptions):
 
 
 def create_observations(api_config, endpoint, config):
-    for ipso in config.get('observations', {}).keys():
-        url = api_config['url']
-        if not url.endswith('/'):
-            url += '/'
-        url += 'api/clients/%s%s/observe?format=TLV' % (endpoint, ipso)
-        print(url)
-        r = requests.post(url, headers=api_config.get('headers'))
-        if r.status_code != 200:
-            log.error('Unable to register observation: %s - %d\n%s',
-                      url, r.status_code, r.text)
-            exit(1)
-        else:
-            name = config.get('alias', endpoint)
-            log.info('%s - created observation for: %s', name, ipso)
+    if endpoint != 'default':
+        for ipso in config.get('observations', {}).keys():
+            url = api_config['url']
+            if not url.endswith('/'):
+                url += '/'
+            url += 'api/clients/%s%s/observe?format=TLV' % (endpoint, ipso)
+            print(url)
+            r = requests.post(url, headers=api_config.get('headers'))
+            if r.status_code != 200:
+                log.error('Unable to register observation: %s - %d\n%s',
+                          url, r.status_code, r.text)
+            else:
+                name = config.get('alias', endpoint)
+                log.info('%s - created observation for: %s', name, ipso)
 
 
 def on_notify(api_config, endpoints, client, event):
@@ -76,6 +100,7 @@ def on_notify(api_config, endpoints, client, event):
 
 
 def on_updated(api_config, endpoints, client, event):
+    endpoints = get_current_endpoints(api_config, endpoints)
     epname = event['endpoint']
     ep = endpoints.get(epname)
     if ep:
@@ -110,6 +135,8 @@ def main(subscriptions):
     except:
         print("MQTT broker failed to connect, exiting...")
         exit(1)
+
+    endpoints = get_current_endpoints(api_config, endpoints)
     for endpoint, config in endpoints.items():
         create_observations(api_config, endpoint, config)
 
