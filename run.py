@@ -24,7 +24,7 @@ def get_current_endpoints(api_config, endpoints):
         url += '/'
     url += 'api/clients'
     print(url)
-    r = requests.get(url)
+    r = requests.get(url, timeout=0.1)
     if r.status_code != 200:
         log.error('Unable to get client list: %s - %d\n%s',
                   url, r.status_code, r.text)
@@ -132,6 +132,7 @@ def main(subscriptions):
     try:
         client = paho.Client()
         client.connect(mqtt['host'], mqtt['port'], 60)
+        client.loop_start()
     except:
         print("MQTT broker failed to connect, exiting...")
         exit(1)
