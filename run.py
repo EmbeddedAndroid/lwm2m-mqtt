@@ -23,14 +23,10 @@ def get_current_endpoints(api_config, endpoints):
     if not url.endswith('/'):
         url += '/'
     url += 'api/clients'
-    print(url)
     try:
         r = requests.get(url, timeout=0.1)
-    except requests.exceptions.ConnectTimeout as e:
-        log.error('Timeout while getting client list')
-        exit(1)
-    except requests.exceptions.ConnectionError as e:
-        log.error('Connection error')
+    except:
+        log.error('Bad Things Happening!')
         exit(1)
     if r.status_code != 200:
         log.error('Unable to get client list: %s - %d\n%s',
@@ -67,11 +63,10 @@ def create_observations(api_config, endpoint, config):
             if not url.endswith('/'):
                 url += '/'
             url += 'api/clients/%s%s/observe?format=TLV' % (endpoint, ipso)
-            print(url)
             try:
                 r = requests.post(url, headers=api_config.get('headers'), timeout=10)
-            except requests.exceptions.ReadTimeout as e:
-                log.error('Timeout while registering observation')
+            except:
+                log.error('Bad Things Happening!')
                 exit(1)
             if r.status_code != 200:
                 log.error('Unable to register observation: %s - %d\n%s',
